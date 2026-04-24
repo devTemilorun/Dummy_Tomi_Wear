@@ -18,14 +18,16 @@ interface Product {
 export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); 
+    e.stopPropagation(); // Prevent event from bubbling to Link
     await addItem(product.id, 1);
     toast.success(`${product.name} added to cart!`);
   };
 
-  const handleLike = (e: React.MouseEvent) => {
+  const handleLike = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     toast("❤️ Like feature coming soon!", { icon: "🔥" });
   };
 
