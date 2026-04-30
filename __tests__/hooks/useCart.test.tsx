@@ -2,7 +2,6 @@ import { renderHook, act } from '@testing-library/react'
 import { CartProvider, useCart } from '@/hooks/useCart'
 import { ReactNode } from 'react'
 
-// Mock axios
 jest.mock('axios', () => ({
   get: jest.fn(() => Promise.resolve({ data: { items: [], total: 0 } })),
   post: jest.fn(() => Promise.resolve({ data: { success: true } })),
@@ -10,7 +9,6 @@ jest.mock('axios', () => ({
   delete: jest.fn(() => Promise.resolve({ data: { success: true } })),
 }))
 
-// Mock next-auth
 jest.mock('next-auth/react', () => ({
   useSession: () => ({ data: null, status: 'unauthenticated' }),
 }))

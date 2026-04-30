@@ -15,7 +15,6 @@ describe('Input', () => {
   it('associates label with input using generated id', () => {
     render(<Input label="Email" />)
     const label = screen.getByText('Email')
-    // Check that label has a 'for' attribute (value may be auto-generated)
     expect(label).toHaveAttribute('for')
   })
 

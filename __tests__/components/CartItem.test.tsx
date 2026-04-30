@@ -2,11 +2,9 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import CartItem from '@/components/cart/CartItem'
 import { CartItem as CartItemType } from '@/types'
 
-// Mock next/image to avoid fill attribute warning
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
-    // Convert boolean fill to string to avoid React warning
     const { fill, ...rest } = props
     return <img {...rest} style={fill ? { width: '100%', height: '100%' } : {}} />
   }

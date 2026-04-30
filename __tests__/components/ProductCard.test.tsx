@@ -1,19 +1,16 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import ProductCard from '@/components/products/ProductCard'
 
-// Mock next/image
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => <img {...props} />
 }))
 
-// Mock next/link
 jest.mock('next/link', () => ({
   __esModule: true,
   default: ({ children, href }: any) => <a href={href}>{children}</a>
 }))
 
-// Mock useCart hook
 const mockAddItem = jest.fn()
 jest.mock('@/hooks/useCart', () => ({
   useCart: () => ({
@@ -26,7 +23,6 @@ jest.mock('@/hooks/useCart', () => ({
   }),
 }))
 
-// Mock react-hot-toast
 jest.mock('react-hot-toast', () => ({
   success: jest.fn(),
   error: jest.fn(),

@@ -7,6 +7,9 @@ import ProductCard from "@/components/products/ProductCard";
 import { ProductSkeleton } from "@/components/ui/Skeleton";
 import axios from "axios";
 
+// Revalidate every 120 seconds (2 minutes)
+export const revalidate = 120;
+
 interface Product {
   id: string;
   name: string;

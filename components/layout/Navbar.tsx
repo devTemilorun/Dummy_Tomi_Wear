@@ -7,15 +7,15 @@ import Button from "../ui/Button";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import { useState } from "react";
 import CartDrawer from "./CartDrawer";
-import { useCart } from "@/hooks/useCart";
+import { useCartSWR } from '@/hooks/useCartSWR'
 
 export default function Navbar() {
   const { data: session } = useSession();
-  const { items } = useCart();
+  const { cart, isLoading } = useCartSWR(); 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
+  const cartCount = cart?.items?.reduce((acc: number, item: any) => acc + item.quantity, 0) || 0;
 
   return (
     <>
@@ -33,6 +33,9 @@ export default function Navbar() {
             </Link>
             <Link href="/products" className="hover:text-blue-600 transition">
               Products
+            </Link>
+            <Link href="/track-order" className="hover:text-blue-600 transition">
+              Track Order
             </Link>
             {session ? (
               <>
@@ -66,8 +69,8 @@ export default function Navbar() {
               className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition"
             >
               <ShoppingCart size={20} />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {!isLoading && cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
                   {cartCount}
                 </span>
               )}
@@ -97,6 +100,13 @@ export default function Navbar() {
               className="hover:text-blue-600"
             >
               Products
+            </Link>
+            <Link
+              href="/track-order"
+              onClick={() => setMobileMenuOpen(false)}
+              className="hover:text-blue-600"
+            >
+              Track Order
             </Link>
             {session ? (
               <>

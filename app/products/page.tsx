@@ -5,7 +5,9 @@ import axios from "axios";
 import ProductCard from "@/components/products/ProductCard";
 import { ProductSkeleton } from "@/components/ui/Skeleton";
 import ProductFilters from "@/components/products/ProductFilters";
-import Button from "@/components/ui/Button";
+
+//Revalidate every 60 seconds
+export const revalidate = 60;
 
 interface Product {
   id: string;
@@ -71,16 +73,6 @@ export default function ProductsPage() {
       ) : products.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">No products found.</p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setSearch("");
-              setCategory("");
-            }}
-            className="mt-4"
-          >
-            Clear Filters
-          </Button>
         </div>
       ) : (
         <>
@@ -90,7 +82,6 @@ export default function ProductsPage() {
             ))}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center gap-2 mt-8">
               <button

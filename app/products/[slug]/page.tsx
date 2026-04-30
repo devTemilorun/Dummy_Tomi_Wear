@@ -8,6 +8,26 @@ import { useCart } from "@/hooks/useCart";
 import Button from "@/components/ui/Button";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
+import { prisma } from "@/lib/prisma";
+
+// Revalidate every 60 seconds
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  try {
+    const products = await prisma.product.findMany({
+      select: { slug: true },
+      take: 100,
+    });
+    
+    return products.map((product) => ({
+      slug: product.slug,
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
+}
 
 interface Product {
   id: string;
@@ -106,7 +126,7 @@ export default function ProductDetail() {
             {product.name}
           </h1>
           <p className="text-2xl text-blue-600 font-bold mb-4">
-            ${product.price.toFixed(2)}
+            ₦{product.price.toFixed(2)}
           </p>
           <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
             {product.description}
