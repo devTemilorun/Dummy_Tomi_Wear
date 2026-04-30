@@ -1,10 +1,12 @@
 // Format price as USD currency
 export const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-NG', {
     style: 'currency',
-    currency: 'USD',
-  }).format(price);
-};
+    currency: 'NGN',
+    minimumFractionDigits: 2,
+  }).format(price)
+}
+
 
 // Load Paystack inline script dynamically
 export const loadPaystackScript = (): Promise<void> => {
