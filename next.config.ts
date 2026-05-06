@@ -5,12 +5,25 @@ const nextConfig: NextConfig = {
   /* config options here */
 
     images: {
-      domains: [
-        'res.cloudinary.com',
-        'via.placeholder.com',
-        'lh3.googleusercontent.com'
-      ],
-    },
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
+  },
 };
 
 export default withSentryConfig(nextConfig, {

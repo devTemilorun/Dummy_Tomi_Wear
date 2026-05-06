@@ -1,50 +1,58 @@
-"use client";
 
-import { useEffect, useState } from "react";
-import axios from "axios";
 import ProductCard from "@/components/products/ProductCard";
 import { ProductSkeleton } from "@/components/ui/Skeleton";
+import Link from "next/link";
 import ProductFilters from "@/components/products/ProductFilters";
+import { prisma } from "@/lib/prisma";
 
-//Revalidate every 60 seconds
+//  ISR Configuration
 export const revalidate = 60;
 
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  images: string[];
+interface SearchParams {
+  page?: string;
+  search?: string;
+  category?: string;
 }
 
-export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
+async function getProducts(searchParams: SearchParams) {
+  const page = parseInt(searchParams.page || "1");
+  const limit = 12;
+  const search = searchParams.search || "";
+  const category = searchParams.category || "";
 
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(
-        `/api/products?page=${page}&limit=12&search=${search}&category=${category}`
-      );
-      setProducts(res.data.products);
-      setTotal(res.data.total);
-      setTotalPages(Math.ceil(res.data.total / 12));
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
-    }
+  const where: any = {};
+  if (category && category !== "") {
+    where.category = category;
+  }
+  if (search && search !== "") {
+    where.name = { contains: search, mode: "insensitive" };
+  }
+
+  const [products, total] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.product.count({ where }),
+  ]);
+
+  return {
+    products: JSON.parse(JSON.stringify(products)),
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
   };
+}
 
-  useEffect(() => {
-    fetchProducts();
-  }, [page, search, category]);
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const params = await searchParams;
+  const { products, total, page, totalPages } = await getProducts(params);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -58,49 +66,49 @@ export default function ProductsPage() {
       </h1>
 
       <ProductFilters
-        search={search}
-        setSearch={setSearch}
-        category={category}
-        setCategory={setCategory}
+        search={params.search || ""}
+        category={params.category || ""}
       />
 
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
-            <ProductSkeleton key={i} />
-          ))}
-        </div>
-      ) : products.length === 0 ? (
+      {products.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">No products found.</p>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
+            {products.map((product: any) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
 
           {totalPages > 1 && (
             <div className="flex justify-center gap-2 mt-8">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-4 py-2 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+              <Link
+                href={`/products?page=${page - 1}&search=${params.search || ""}&category=${params.category || ""}`}
+                className={`px-4 py-2 border rounded transition ${
+                  page === 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                }`}
+                aria-disabled={page === 1}
               >
                 Previous
-              </button>
+              </Link>
               <span className="px-4 py-2 text-gray-700 dark:text-gray-300">
                 Page {page} of {totalPages}
               </span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-4 py-2 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+              <Link
+                href={`/products?page=${page + 1}&search=${params.search || ""}&category=${params.category || ""}`}
+                className={`px-4 py-2 border rounded transition ${
+                  page === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                }`}
+                aria-disabled={page === totalPages}
               >
                 Next
-              </button>
+              </Link>
             </div>
           )}
         </>

@@ -20,7 +20,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); 
-    e.stopPropagation(); // Prevent event from bubbling to Link
+    e.stopPropagation();
     await addItem(product.id, 1);
     toast.success(`${product.name} added to cart!`);
   };
@@ -31,22 +31,33 @@ export default function ProductCard({ product }: { product: Product }) {
     toast("❤️ Like feature coming soon!", { icon: "🔥" });
   };
 
+  // Get the first image or use placeholder
+  const productImage = product.images && product.images.length > 0 
+    ? product.images[0] 
+    : "https://placehold.co/600x400/png?text=No+Image";
+
   return (
     <Link href={`/products/${product.slug}`}>
       <div className="group border rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-800">
         {/* Image Container */}
         <div className="relative h-48 overflow-hidden bg-gray-100">
           <Image
-            src={product.images[0] || "/placeholder.png"}
+            src={productImage}
             alt={product.name}
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              // Fallback if image fails to load
+              const target = e.target as HTMLImageElement;
+              target.src = "https://placehold.co/600x400/png?text=Product";
+            }}
           />
           
           {/* Like Button Overlay */}
           <button
             onClick={handleLike}
-            className="absolute top-2 right-2 p-1.5 bg-white/90 dark:bg-gray-800/90 rounded-full shadow-md hover:scale-110 transition"
+            className="absolute top-2 right-2 p-1.5 bg-white/90 dark:bg-gray-800/90 rounded-full shadow-md hover:scale-110 transition z-10"
           >
             <Heart size={18} className="text-gray-600 dark:text-gray-300 hover:text-red-500" />
           </button>
@@ -57,7 +68,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <h3 className="font-semibold text-lg truncate text-gray-900 dark:text-white">
             {product.name}
           </h3>
-          <p className="text-blue-600 font-bold mt-1">${product.price.toFixed(2)}</p>
+          <p className="text-blue-600 font-bold mt-1">₦{product.price.toLocaleString()}</p>
           
           <Button
             onClick={handleAddToCart}
